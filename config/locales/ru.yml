@@ -1,0 +1,14 @@
+ru:
+  activerecord:
+    attributes:
+      product:
+        code: "Код"
+
+  one_c7_connector: "Коннектор с 1С 7.7"
+  one_c7_connector_desc: "Импорт товаров из XML файлов 1C 7.7"
+  
+  parsein_taxonomy: "Корневая таксономия для загрузки"
+  xml_file: "XML файл 1С 7.7"
+  import: "Импортировать"
+  no_selected_file: "Не выбран файл для загрузки"
+  successful_1c_import: "Импорт товаров успешно выполнен"

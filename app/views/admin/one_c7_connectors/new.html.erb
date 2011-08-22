@@ -1,0 +1,19 @@
+<%= render :partial => 'admin/shared/configuration_menu' %>
+
+<h1><%= t(:one_c7_connector) %></h1>
+
+<% form_tag admin_one_c7_connector_path, :multipart => true do %>
+  <p>
+    <%= label_tag "one_c7[taxonomy]", t(:parsein_taxonomy) %>:<br />
+    <%= select_tag "one_c7[taxonomy]", options_for_select(Taxonomy.all.collect { |t| [t.name, t.id] }) %>
+  </p>
+  
+  <p>
+    <%= label_tag "one_c7[xml_file]", t(:xml_file) %>:<br />
+    <%= file_field_tag "one_c7[xml_file]" %>
+  </p>
+  
+  <p class="form-buttons">
+    <%= button t(:import) %>
+  </p>
+<% end %>
