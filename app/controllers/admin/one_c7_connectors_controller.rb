@@ -14,17 +14,17 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
           # Always taxon, find or create it; rename if names different
           if el.attribute('Группа')
             # Children group
-            parent_taxon = Taxon.find_by_code(el.attribute('Группа').value)
-            new_taxon = taxonomy.taxons.find_or_create_by_code(el.attribute('Код').value)
+            parent_taxon = Taxon.find_by_code_1c(el.attribute('Группа').value)
+            new_taxon = taxonomy.taxons.find_or_create_by_code_1c(el.attribute('Код').value)
             new_taxon.update_attributes(:name => el.attribute('Наименование').value, :parent_id => parent_taxon.id)
           else
             # Root group
-            taxon = taxonomy.taxons.find_or_create_by_code(el.attribute('Код').value)
+            taxon = taxonomy.taxons.find_or_create_by_code_1c(el.attribute('Код').value)
             taxon.update_attributes(:name => el.attribute('Наименование').value, :parent_id => taxonomy.taxons.first.id)
           end
         else
           # Always Product, find or create it; rename if names different
-          taxon = el.attribute('Группа') ? Taxon.find_by_code(el.attribute('Группа').value) : Taxon.where(:taxonomy_id => params[:one_c7][:taxonomy], :parent_id => nil).first
+          taxon = el.attribute('Группа') ? Taxon.find_by_code_1c(el.attribute('Группа').value) : Taxon.where(:taxonomy_id => params[:one_c7][:taxonomy], :parent_id => nil).first
           parse_product(taxon, el) if taxon
         end
       end
@@ -41,16 +41,22 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
   private
   
   def parse_product(taxon, el)
-    product = Product.find_or_initialize_by_code(el.attribute('Код').value)
+    product = Product.find_or_initialize_by_code_1c(el.attribute('Код').value)
     
     if product.new_record?
       product.name = el.attribute('Наименование').value
       product.price = el.attribute('Цена').value
+      product.available_on = Time.now
       product.taxons << taxon
       product.save!
     else
-      product.update_attribute(:name, el.attribute('Наименование').value)
-      product.update_attribute(:price, el.attribute('Цена').value)
+      product.update_attributes(:name => el.attribute('Наименование').value, :price => el.attribute('Цена').value)
+      # Update taxon only have non-empty code_1c attribute
+      unless product.taxons.include?(taxon)
+        old_taxon = product.taxons.select { |t| t.code_1c != nil }
+        product.taxons.delete(old_taxon)
+        product.taxons << taxon
+      end
     end
   end
 end
