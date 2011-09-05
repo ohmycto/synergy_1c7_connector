@@ -25,7 +25,7 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
         else
           # Always Product, find or create it; rename if names different
           taxon = el.attribute('Группа') ? Taxon.find_by_code_1c(el.attribute('Группа').value) : Taxon.where(:taxonomy_id => params[:one_c7][:taxonomy], :parent_id => nil).first
-          parse_product(taxon, el) if taxon
+          parse_product(taxon, el) if taxon && el.attribute('Наименование').value.present?
         end
       end
       
@@ -45,7 +45,7 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
     
     if product.new_record?
       product.name = el.attribute('Наименование').value
-      product.price = el.attribute('Цена').value
+      product.price = el.attribute('Цена').value.present? ? el.attribute('Цена').value : 0
       product.available_on = Time.now
       product.taxons << taxon
       product.save!
